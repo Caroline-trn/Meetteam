@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\MeetingNote;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class MeetingNoteController extends Controller
+{
+    public function index()
+    {
+        $notes = MeetingNote::where('user_id', Auth::id())
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+        
+        return response()->json($notes);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'meeting_id' => 'nullable|exists:meetings,id',
+            'color' => 'nullable|string'
+        ]);
+
+        $note = MeetingNote::create([
+            'user_id' => Auth::id(),
+            'meeting_id' => $request->meeting_id,
+            'title' => $request->title,
+            'content' => $request->content,
+            'color' => $request->color ?? '#ffffff'
+        ]);
+
+        return response()->json($note, 201);
+    }
+
+    public function show(MeetingNote $note)
+    {
+        if ($note->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($note);
+    }
+
+    public function update(Request $request, MeetingNote $note)
+    {
+        if ($note->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'content' => 'sometimes|required|string',
+            'color' => 'sometimes|string'
+        ]);
+
+        $note->update($request->all());
+
+        return response()->json($note);
+    }
+
+    public function destroy(MeetingNote $note)
+    {
+        if ($note->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $note->delete();
+
+        return response()->json(null, 204);
+    }
+}

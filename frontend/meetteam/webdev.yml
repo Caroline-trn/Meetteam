@@ -1,0 +1,8 @@
+# webdev.yml
+handlers:
+  - serve: assets/packages/fluttertoast/assets/toastify.css
+    headers:
+      content-type: text/css
+  - serve: assets/packages/fluttertoast/assets/toastify.js
+    headers:
+      content-type: application/javascript
