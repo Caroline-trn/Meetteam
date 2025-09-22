@@ -16,6 +16,17 @@ class AuthService {
     }
   }
 
+  Map<String, String> _getCorsHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token, Authorization',
+  };
+}
+
+
   // NOUVELLE MÉTHODE REGISTER
   Future<Map<String, dynamic>> register(String name, String email, String password, String confirmPassword) async {
     try {
@@ -76,10 +87,12 @@ class AuthService {
     try {
       final response = await http.post(
         Uri.parse('${getBaseUrl()}/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        //headers: {
+        //  'Content-Type': 'application/json',
+          //'Accept': 'application/json',
+          
+        //},
+        headers: _getCorsHeaders(),
         body: json.encode({'email': email, 'password': password}),
       );
 
@@ -114,10 +127,11 @@ class AuthService {
     try {
       final response = await http.post(
         Uri.parse('${getBaseUrl()}/forgot-password'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        //headers: {
+        //  'Content-Type': 'application/json',
+        //  'Accept': 'application/json',
+        //},
+        headers: _getCorsHeaders(),
         body: json.encode({'email': email}),
       );
 
@@ -192,15 +206,19 @@ class AuthService {
     }
   }
 
-  Future<void> logout() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('token');
-      _logger.info('Déconnexion réussie');
-    } catch (e) {
-      _logger.error('Erreur déconnexion: $e');
-    }
+  Future<bool> logout() async {
+  try {
+    // Votre logique de déconnexion ici
+    // Exemple avec Firebase :
+    // await FirebaseAuth.instance.signOut();
+    
+    // Retournez TOUJOURS un booléen, jamais null
+    return true; // Succès
+  } catch (e) {
+    print('Erreur de déconnexion: $e');
+    return false; // Échec
   }
+}
 }
 
 // Classe de logging personnalisée
